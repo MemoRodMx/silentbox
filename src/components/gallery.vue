@@ -4,19 +4,16 @@
     <div
       v-for="(image, index) in galleryItems"
       :key="image.src"
-      @click="openOverlay(image, index)"
       class="silentbox-item"
     >
-      <slot
-          name="silentbox-item"
-          v-bind:silentboxItem="image"
-      >
+      <slot name="silentbox-item" v-bind:silentboxItem="image">
         <img
           :src="image.thumbnail"
           :alt="image.alt"
           :width="image.thumbnailWidth"
           :height="image.thumbnailHeight"
-        >
+          @click="openOverlay(image, index)"
+        />
       </slot>
     </div>
     <silentbox-overlay
@@ -32,126 +29,128 @@
 </template>
 
 <script>
-import overlay from './overlay.vue'
-import itemMixin from './../mixins/item'
+import overlay from "./overlay.vue";
+import itemMixin from "./../mixins/item";
 
 export default {
-  name: 'silentboxGallery',
+  name: "silentboxGallery",
   mixins: [itemMixin],
   props: {
     gallery: {
       type: Array,
       default: () => {
-        return []
-      }
+        return [];
+      },
     },
     image: {
       type: Object,
       default: () => {
         return {
-          src: '',
-          alt: '',
-          thumbnailWidth: 'auto',
-          thumbnailHeight: 'auto',
-          thumbnail: '',
+          src: "",
+          alt: "",
+          thumbnailWidth: "auto",
+          thumbnailHeight: "auto",
+          thumbnail: "",
           autoplay: false,
           controls: true,
-          description: ''
-        }
-      }
-    }
+          description: "",
+        };
+      },
+    },
   },
   components: {
-    'silentbox-overlay': overlay
+    "silentbox-overlay": overlay,
   },
-  data () {
+  data() {
     return {
       overlay: {
         item: {
-          src: '',
-          alt: '',
-          thumbnailWidth: 'auto',
-          thumbnailHeight: 'auto',
-          thumbnail: '',
+          src: "",
+          alt: "",
+          thumbnailWidth: "auto",
+          thumbnailHeight: "auto",
+          thumbnail: "",
           autoplay: false,
           controls: true,
-          description: ''
+          description: "",
         },
         visible: false,
-        currentItem: 0
-      }
-    }
+        currentItem: 0,
+      },
+    };
   },
   computed: {
-    totalItems () {
-      return this.gallery.length || 1
+    totalItems() {
+      return this.gallery.length || 1;
     },
-    galleryItems () {
+    galleryItems() {
       if (this.gallery.length > 0) {
-        return this.gallery.map(item => {
+        return this.gallery.map((item) => {
           return {
             ...this.overlay.item,
             ...item,
             thumbnail: this.setThumbnail(item),
-            autoplay: this.setAutoplay(item)
-          }
-        })
+            autoplay: this.setAutoplay(item),
+          };
+        });
       } else {
-        return [{
-          ...this.overlay.item,
-          ...this.image,
-          thumbnail: this.setThumbnail(this.image)
-        }]
+        return [
+          {
+            ...this.overlay.item,
+            ...this.image,
+            thumbnail: this.setThumbnail(this.image),
+          },
+        ];
       }
-    }
+    },
   },
   methods: {
-    openOverlay (image, index) {
-      this.overlay.visible = true
-      this.overlay.item = image
-      this.overlay.currentItem = index
-      this.$emit('silentbox-overlay-opened')
+    openOverlay(image, index) {
+      this.overlay.visible = true;
+      this.overlay.item = image;
+      this.overlay.currentItem = index;
+      this.$emit("silentbox-overlay-opened");
     },
-    hideOverlay () {
-      this.overlay.visible = false
-      this.$emit('silentbox-overlay-hidden')
+    hideOverlay() {
+      this.overlay.visible = false;
+      this.$emit("silentbox-overlay-hidden");
     },
-    showNextItem () {
-      let newItemIndex = this.overlay.currentItem + 1
-      newItemIndex = newItemIndex <= this.galleryItems.length - 1
-        ? newItemIndex : 0
+    showNextItem() {
+      let newItemIndex = this.overlay.currentItem + 1;
+      newItemIndex =
+        newItemIndex <= this.galleryItems.length - 1 ? newItemIndex : 0;
 
-      this.overlay.item = this.galleryItems[newItemIndex]
-      this.overlay.currentItem = newItemIndex
-      this.$emit('silentbox-overlay-next-item-displayed')
+      this.overlay.item = this.galleryItems[newItemIndex];
+      this.overlay.currentItem = newItemIndex;
+      this.$emit("silentbox-overlay-next-item-displayed");
     },
-    showPreviousItem () {
-      let newItemIndex = this.overlay.currentItem - 1
-      newItemIndex = newItemIndex > -1
-        ? newItemIndex : this.galleryItems.length - 1
+    showPreviousItem() {
+      let newItemIndex = this.overlay.currentItem - 1;
+      newItemIndex =
+        newItemIndex > -1 ? newItemIndex : this.galleryItems.length - 1;
 
-      this.overlay.item = this.galleryItems[newItemIndex]
-      this.overlay.currentItem = newItemIndex
-      this.$emit('silentbox-overlay-previous-item-displayed')
+      this.overlay.item = this.galleryItems[newItemIndex];
+      this.overlay.currentItem = newItemIndex;
+      this.$emit("silentbox-overlay-previous-item-displayed");
     },
-    setAutoplay (item) {
-      return item.autoplay ? 'autoplay' : ''
+    setAutoplay(item) {
+      return item.autoplay ? "autoplay" : "";
     },
-    setThumbnail (item) {
+    setThumbnail(item) {
       if (this.isEmbedVideo(item.src) && item.thumbnail === undefined) {
-        return this.getThumbnail(item.src)
+        return this.getThumbnail(item.src);
       }
 
-      return item.thumbnail || item.src
-    }
-  }
-}
+      return item.thumbnail || item.src;
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-  .silentbox-item {
-      cursor: pointer;
-      display: inline-block;
-      text-decoration: underline;
-  }
+.silentbox-item {
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: underline;
+}
 </style>
